@@ -2,11 +2,26 @@
 <html>
     <head>
         <script type="text/javascript" src="/static/jquery-min.js"></script>
+        <script src="/static/bootstrap/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/static/ui.js"></script>
+        <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
     </head>
     <body>
-        <div id="scroller" style="height: 25em; width: 80em; overflow-y: scroll;">
-            <div id="echo" style="min-height: 25em; width: 60em; font-family: monospace; color: white; background-color: black;"># </div>
+        <div class='navbar navbar-inverse'>
+            <div class='navbar-inner'>
+                <a class="brand" href="#">Clushterweb</a>
+            </div>
+        </div>
+        <div id="errorflash" class="alert alert-error" style="display: none;">
+
+        </div>
+        <div class='container'>
+            <div class='well'>
+                <div id="scroller" style="height: 25em; overflow-y: scroll;">
+                    <div id="echo" style="font-size: 1.0em; min-height: 25em; font-family: monospace; color: white; background-color: black;"># </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>

@@ -16,6 +16,11 @@ $(document).ready(function(){
         scroller.scrollTop(content.height() + scroller.height());
     }
 
+    function flash_error(text) {
+        $('#errorflash').text(text);
+        $('#errorflash').show();
+    }
+
     function backspace() {
         var content = $('#echo');
         var text = content.text();
@@ -84,6 +89,9 @@ $(document).ready(function(){
                    });
                }
                get_output();
+           },
+           error: function(jqxhr, error) {
+               flash_error("Error " + jqxhr.status + " getting output");
            }
         });
     }
