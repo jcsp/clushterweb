@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html>
     <head>
         <script type="text/javascript" src="/static/jquery-min.js"></script>
@@ -8,20 +8,34 @@
 
     </head>
     <body>
-        <div class='navbar navbar-inverse'>
-            <div class='navbar-inner'>
+        <div class='navbar navbar-inverse' style="border-radius: 0;">
+            <div class='navbar-inner'  style="border-radius: 0;">
                 <a class="brand" href="#">Clushterweb</a>
             </div>
         </div>
         <div id="errorflash" class="alert alert-error" style="display: none;">
 
         </div>
-        <div class='container'>
-            <div class='well'>
-                <div id="scroller" style="height: 25em; overflow-y: scroll;">
-                    <div id="echo" style="font-size: 1.0em; min-height: 25em; font-family: monospace; color: white; background-color: black;"># </div>
+        <div class='row'>
+            <div class='span10 offset1'>
+                <div class="input-append">
+                    <input class="ipnut-large" placeholder="Nodes (e.g. myhost[0-9])" id="appendedInputButton" type="text">
+                    <button class="btn" type="button">Start session</button>
                 </div>
             </div>
+        </div>
+
+        <div class='row'>
+            <div class='span10 offset1'>
+            <div class='well'>
+                <div id="scroller" style="height: 25em; overflow-y: scroll; overflow-x: hidden;">
+                    <div style="padding: 5px; font-size: 1.0em; min-height: 25em; font-family: monospace; color: white; background-color: black;">
+                        <span id="echo"></span><span id="cursor" style="text-weight: bold; display:none;">_</span>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
         </div>
     </body>
 </html>

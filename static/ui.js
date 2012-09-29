@@ -7,10 +7,34 @@
  */
 
 $(document).ready(function(){
+
+    function cursorhide() {
+        $('#cursor').hide();
+    }
+
+    function cursorshow() {
+        $('#cursor').show();
+    }
+
+    function cursorblink() {
+        console.log('blink');
+        if ($('#cursor').is(':visible')){
+            cursorhide();
+        } else {
+            cursorshow();
+        }
+    }
+
+    setInterval(cursorblink, 500);
+
     function echo(line) {
         var content = $('#echo');
+        var cleaned = line.replace("\n", "<br>");
+        cleaned = cleaned.replace(" ", "&nbsp;");
+
         //content.text(content.text() + line);
-        content.append(line);
+        content.append(cleaned);
+        cursorhide();
 
         var scroller = $('#scroller');
         scroller.scrollTop(content.height() + scroller.height());

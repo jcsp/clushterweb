@@ -41,8 +41,6 @@ class ShellSession(object):
         with self.messages_lock:
             if message:
                 message = ansi2html.Ansi2HTMLConverter(inline = True).convert(message, full = False)
-                message = message.replace("\n", "<br>")
-                message = message.replace(" ", "&nbsp;")
 
             self.messages.append([node, message])
             for ev in self.watcher_events:
