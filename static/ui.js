@@ -1,7 +1,8 @@
 
 $(document).ready(function(){
-    var PROMPT = "# ";
+    var PROMPT = "> ";
     var active_session = null;
+    var echo_template = _.template("<span class='hostname_prefix'><%= hostname %></span>: <%= content %><br>")
 
     function Session(id) {
         return {
@@ -48,9 +49,10 @@ $(document).ready(function(){
 
     function echo(line) {
         var content = $('#echo');
-        var cleaned = line.replace("\n", "<br>");
-        cleaned = cleaned.replace(" ", "&nbsp;");
-        content.append(cleaned);
+//        var cleaned = line.replace("\n", "<br>");
+//        cleaned = cleaned.replace(" ", "&nbsp;");
+//        content.append(cleaned);
+        content.append(line);
         cursorhide();
 
         var scroller = $('#scroller');
@@ -65,11 +67,10 @@ $(document).ready(function(){
 
     function backspace() {
         var content = $('#echo');
-        var text = content.text();
-        var new_text = text.substr(0, text.length - 1);
-        content.text(new_text);
+        var html = content.html();
+        var new_text = html.substr(0, html.length - 1);
+        content.html(new_text);
     }
-
 
     $(document).keypress(function(e) {
         /* Keypress handles letter keypresses */
@@ -132,7 +133,10 @@ $(document).ready(function(){
                        if (line[1] == null) {
                            echo(PROMPT);
                        } else {
-                           echo(line[0] + ": " + line[1] + "<br>");
+                           echo(echo_template({
+                               hostname: line[0],
+                               content: line[1]
+                           }));
                        }
                    });
                }
