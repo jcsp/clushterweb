@@ -48,11 +48,11 @@ var ShellSessionView = Backbone.View.extend({
         /* keyup handles non-letter keypresses */
         if (e.keyCode == 13) {
             if (this.session.cmd_buffer.length == 0) {
-                this.echo("<br>" + this.PROMPT)
+                this.echo_raw("<br>" + this.PROMPT)
             } else {
                 this.session.cmd_stack.push(this.session.cmd_buffer);
                 this.run(this.session.cmd_buffer);
-                this.echo("<br>");
+                this.echo_raw("<br>");
             }
             this.session.cmd_buffer = "";
         } else if (e.keyCode == 8) {
@@ -79,17 +79,27 @@ var ShellSessionView = Backbone.View.extend({
         this.el.destroy();
     },
     backspace: function() {
+        // broken
+        return;
         var content = $(this.el).find('.echo');
         var html = content.html();
         var new_text = html.substr(0, html.length - 1);
+        console.log(html);
+        console.log(new_text);
         content.html(new_text);
     },
-    echo: function(line) {
+    echo_host: function(host, line) {
+        this.echo_raw(this.echo_template({
+            hostname: host,
+            content: _.escape(line)
+        }));
+    },
+    echo: function(text) {
+        this.echo_raw(_.escape(text));
+    },
+    echo_raw: function(text) {
         var content = $(this.el).find('.echo');
-    //        var cleaned = line.replace("\n", "<br>");
-    //        cleaned = cleaned.replace(" ", "&nbsp;");
-    //        content.append(cleaned);
-        content.append(line);
+        content.append(text);
         cursorhide();
 
         var scroller = $(this.el).find('.scroller');
@@ -119,14 +129,11 @@ var ShellSessionView = Backbone.View.extend({
                         if (line[1] == null) {
                             view.echo(view.PROMPT);
                         } else {
-                            view.echo(view.echo_template({
-                                hostname: line[0],
-                                content: line[1]
-                            }));
+                            view.echo_host(line[0], line[1]);
                         }
                     });
                 }
-                view.get_output(session);
+                view.get_output();
             },
             error: function(jqxhr) {
                 flash_error("Error " + jqxhr.status + " getting output");
