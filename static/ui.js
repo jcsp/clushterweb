@@ -1,12 +1,28 @@
-/**
- * Created with PyCharm.
- * User: john
- * Date: 9/28/12
- * Time: 5:05 PM
- * To change this template use File | Settings | File Templates.
- */
 
 $(document).ready(function(){
+    var PROMPT = "# ";
+    var active_session = null;
+
+    function Session(id) {
+        return {
+            id: id,
+            lines: [],
+            cmd_stack: [],
+            cmd_buffer: ""
+        }
+    }
+
+    $('#start_session').click(function() {
+        $.ajax("/session/", {
+            type: 'POST',
+            data: {'nodes': $("#nodes").val()},
+            success: function(data) {
+                active_session = Session(data.session_id);
+                echo(PROMPT);
+                get_output(active_session);
+            }
+        });
+    });
 
     function cursorhide() {
         $('#cursor').hide();
@@ -17,7 +33,10 @@ $(document).ready(function(){
     }
 
     function cursorblink() {
-        console.log('blink');
+        if (active_session == null) {
+            cursorhide();
+        }
+
         if ($('#cursor').is(':visible')){
             cursorhide();
         } else {
@@ -31,8 +50,6 @@ $(document).ready(function(){
         var content = $('#echo');
         var cleaned = line.replace("\n", "<br>");
         cleaned = cleaned.replace(" ", "&nbsp;");
-
-        //content.text(content.text() + line);
         content.append(cleaned);
         cursorhide();
 
@@ -41,8 +58,9 @@ $(document).ready(function(){
     }
 
     function flash_error(text) {
-        $('#errorflash').text(text);
-        $('#errorflash').show();
+        var el = $('#errorflash');
+        el.text(text);
+        el.show();
     }
 
     function backspace() {
@@ -52,59 +70,65 @@ $(document).ready(function(){
         content.text(new_text);
     }
 
-    var cmd_stack = [];
-    var cmd_buffer = "";
-    var PROMPT = "# ";
+
     $(document).keypress(function(e) {
+        /* Keypress handles letter keypresses */
+        if (active_session == null) {
+            return;
+        }
         var letter =  String.fromCharCode(e.keyCode);
         if (e.keyCode != 13 && e.keyCode != 8) {
-            cmd_buffer = cmd_buffer +letter;
+            active_session.cmd_buffer = active_session.cmd_buffer +letter;
             echo(letter);
         }
     });
 
     $(document).keyup(function(e) {
+        /* keyup handles non-letter keypresses */
+        if (active_session == null) {
+            return;
+        }
         if (e.keyCode == 13) {
-           if (cmd_buffer.length == 0) {
+           if (active_session.cmd_buffer.length == 0) {
                echo("<br>" + PROMPT)
            } else {
-               cmd_stack.push(cmd_buffer);
-               run(cmd_buffer);
+               active_session.cmd_stack.push(active_session.cmd_buffer);
+               run(active_session.cmd_buffer);
                echo("<br>");
            }
-           cmd_buffer = "";
+           active_session.cmd_buffer = "";
        } else if (e.keyCode == 8) {
-           if (cmd_buffer.length > 0) {
-               cmd_buffer = cmd_buffer.substr(0, cmd_buffer.length - 1);
+           if (active_session.cmd_buffer.length > 0) {
+               active_session.cmd_buffer = active_session.cmd_buffer.substr(0, active_session.cmd_buffer.length - 1);
                backspace();
            }
         } else if (e.keyCode == 38) {
-            if (cmd_stack.length > 0) {
-                cmd_buffer = cmd_stack[cmd_stack.length - 1];
-                echo(cmd_stack[cmd_stack.length - 1]);
+            if (active_session.cmd_stack.length > 0) {
+                active_session.cmd_buffer = active_session.cmd_stack[active_session.cmd_stack.length - 1];
+                echo(active_session.cmd_stack[active_session.cmd_stack.length - 1]);
             }
         }
     });
 
-
     function run(cmd) {
-        $.ajax("/input/", {
+        $.ajax("/input/" + active_session.id + "/", {
             type: 'POST',
             data: {command: cmd},
             success: function(data) {
-
+            },
+            error: function(jqxhr) {
+                flash_error("Error " + jqxhr.status + " getting output");
             }
         });
     }
 
-    var lines = [];
-    function get_output() {
-        $.ajax("/output/" + lines.length + "/", {
+    function get_output(session) {
+        $.ajax("/output/" + session.id + "/" + session.lines.length + "/", {
            type: 'GET',
            success: function(data) {
                if (data.lines) {
                    $.each(data.lines, function(i, line) {
-                       lines.push(line);
+                       session.lines.push(line);
                        if (line[1] == null) {
                            echo(PROMPT);
                        } else {
@@ -112,15 +136,11 @@ $(document).ready(function(){
                        }
                    });
                }
-               get_output();
+               get_output(session);
            },
            error: function(jqxhr, error) {
                flash_error("Error " + jqxhr.status + " getting output");
            }
         });
     }
-    get_output();
-
-
-
 });

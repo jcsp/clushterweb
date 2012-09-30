@@ -1,5 +1,6 @@
 import logging
 import threading
+import uuid
 from ClusterShell.Event import EventHandler
 import ansi2html
 from flask import Flask, request, make_response, jsonify
@@ -11,7 +12,7 @@ app.logger.addHandler(logging.StreamHandler())
 
 
 
-from ClusterShell.Task import Task
+from ClusterShell.Task import Task, task_self
 
 class WebEventHandler(EventHandler):
     def __init__(self, read_callback, complete_callback):
@@ -67,21 +68,35 @@ class ShellSession(object):
             return self.messages[start_index:]
 
     def call(self, cmdline):
-        task = Task()
+        #task = Task()
+        task = task_self()
         task.shell(cmdline, nodes = self.nodes, handler =self.handler )
         task.run()
+        task.join()
 
-the_session = ShellSession("localhost,ec2")
+sessions = {}
 
-@app.route('/output/<int:from_offset>/', methods = ['GET'])
-def output(from_offset):
-    session = the_session
+@app.route("/session/", methods = ['POST'])
+def start_session():
+    id = uuid.uuid4().__str__()
+    # flask gives me unicode, clustershell wants str
+    nodes = str(request.form['nodes']).strip()
+    app.logger.info("Creating session %s for nodes %s" % (id, nodes))
+    sessions[id] = ShellSession(nodes)
+
+    return jsonify({'session_id': id})
+
+
+@app.route('/output/<session_id>/<int:from_offset>/', methods = ['GET'])
+def output(session_id, from_offset):
+    session = sessions[session_id]
     lines = session.blocking_get(from_offset, 10)
     return jsonify({'lines': lines})
 
-@app.route('/input/', methods = ['POST'])
-def input():
-    session = the_session
+
+@app.route('/input/<session_id>/', methods = ['POST'])
+def input(session_id):
+    session = sessions[session_id]
     session.call(request.form['command'])
     return jsonify({})
 
