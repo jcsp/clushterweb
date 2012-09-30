@@ -1,8 +1,25 @@
 <!DOCTYPE html>
 <html>
+    <script type='text/template' id="shell_session_template">
+        <div class='row'>
+            <div class='well'>
+                <div class="scroller" style="height: 25em; overflow-y: scroll; overflow-x: hidden;">
+                    <div style="padding: 5px; font-size: 1.0em; min-height: 25em; font-family: monospace; color: white; background-color: black;">
+                        <span class="echo"></span><span class="cursor" style="text-weight: bold; display:none;">_</span>
+                    </div>
+                </div>
+            </div>
+            <div class="span1 offset10">
+                <button class='btn' class='close'>
+                    Close
+                </button>
+            </div>
+        </div>
+    </script>
     <head>
         <script type="text/javascript" src="/static/jquery-min.js"></script>
         <script type="text/javascript" src="/static/underscore-min.js"></script>
+        <script type="text/javascript" src="/static/backbone-min.js"></script>
         <script src="/static/bootstrap/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/static/ui.js"></script>
         <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -17,6 +34,7 @@
         <div id="errorflash" class="alert alert-error" style="display: none;">
 
         </div>
+
         <div class='row'>
             <div class='span10 offset1'>
                 <div class="input-append">
@@ -28,15 +46,15 @@
 
         <div class='row'>
             <div class='span10 offset1'>
-            <div class='well'>
-                <div id="scroller" style="height: 25em; overflow-y: scroll; overflow-x: hidden;">
-                    <div style="padding: 5px; font-size: 1.0em; min-height: 25em; font-family: monospace; color: white; background-color: black;">
-                        <span id="echo"></span><span id="cursor" style="text-weight: bold; display:none;">_</span>
+                <div class='tabbable'>
+                    <ul class='nav nav-tabs' id="session_tab_headers">
+
+                    </ul>
+                    <div class='tab-content' id="session_tab_bodies">
+
                     </div>
                 </div>
             </div>
-            </div>
-        </div>
         </div>
     </body>
 </html>
