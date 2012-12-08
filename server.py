@@ -69,7 +69,7 @@ class ShellSession(object):
 
     def call(self, cmdline):
         task = Task()
-        task.shell(cmdline, nodes = self.nodes, handler =self.handler )
+        task.shell(cmdline, nodes = self.nodes, handler = self.handler )
         task.run()
 
 _sessions = {}

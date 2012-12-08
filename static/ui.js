@@ -40,7 +40,7 @@ var ShellSessionView = Backbone.View.extend({
         /* Keypress handles letter keypresses */
         var letter =  String.fromCharCode(e.keyCode);
         if (e.keyCode != 13 && e.keyCode != 8) {
-            this.session.cmd_buffer = this.session.cmd_buffer +letter;
+            this.session.cmd_buffer = this.session.cmd_buffer + letter;
             this.echo(letter);
         }
     },
@@ -79,13 +79,31 @@ var ShellSessionView = Backbone.View.extend({
         this.el.destroy();
     },
     backspace: function() {
-        // broken
-        return;
         var content = $(this.el).find('.echo');
         var html = content.html();
-        var new_text = html.substr(0, html.length - 1);
-        console.log(html);
-        console.log(new_text);
+        var new_text;
+        if (html.substr(html.length - 1, 1) == '>') {
+            // No tags in commands as they're typed
+        } else if (html.substr(html.length - 1, 1) == ';') {
+            var lastAmp = html.lastIndexOf('&');
+            if (lastAmp == -1) {
+                // A literal semicolon
+                new_text = html.substr(0, html.length - 1);
+            } else {
+                // Maybe an &entity;
+                var potentialEntity = html.substr(lastAmp);
+                if (potentialEntity.indexOf(";") == potentialEntity.length - 1) {
+                    // it's an entity, remove the whole lot
+                    new_text = html.substr(0, lastAmp);
+                } else {
+                    // it's a literal semicolon, remove 1 char
+                    new_text = html.substr(0, html.length - 1);
+                }
+            }
+        } else {
+            new_text = html.substr(0, html.length - 1);
+        }
+
         content.html(new_text);
     },
     echo_host: function(host, line) {
